@@ -1,0 +1,28 @@
+'use client';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+export default function Login() {
+  const [f, setF] = useState({ username: '', password: '' });
+  const r = useRouter();
+  return (
+    <form
+      onSubmit={async e => {
+        e.preventDefault();
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(f),
+        });
+        if (!res.ok) return alert('Invalid');
+        const d = await res.json();
+        localStorage.setItem('token', d.token);
+        r.push('/dashboard');
+      }}
+      className="flex flex-col gap-2 max-w-sm mx-auto"
+    >
+      <input className="border p-2" placeholder="Username" value={f.username} onChange={e => setF({ ...f, username: e.target.value })} />
+      <input className="border p-2" type="password" placeholder="Password" value={f.password} onChange={e => setF({ ...f, password: e.target.value })} />
+      <button className="bg-green-600 text-white p-2">Login</button>
+    </form>
+  );
+}
