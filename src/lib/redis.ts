@@ -1,9 +1,17 @@
-import Redis from 'ioredis';
+// lib/redis.ts
+import { createClient } from 'redis';
 
-const redis = new Redis(process.env.REDIS_URL!, {
+const client = createClient({
+    username: 'default',
     password: process.env.REDIS_TOKEN,
-    tls: { rejectUnauthorized: false },
+    socket: {
+        host: process.env.REDIS_HOST,
+        port: Number(process.env.REDIS_PORT)
+    }
 });
 
-export default redis;
+client.on('error', (err) => console.error('Redis Client Error:', err));
 
+await client.connect();
+
+export default client;

@@ -11,10 +11,10 @@ export async function POST(req: NextRequest) {
     try {
         const existingUser = await User.findOne({ email });
         if (existingUser) return NextResponse.json({ message: 'Email Already exists' }, { status: 400 });
-        const user = await User.create({ email, password: hashedPassword });
+        const user = await User.create({ email, password: hashedPassword, balance: 1000 });
 
         const token = jwt.sign(
-            { userId: user._id },
+            { id: user._id },
             process.env.JWT_SECRET!,
             { expiresIn: '7d' }
         );
