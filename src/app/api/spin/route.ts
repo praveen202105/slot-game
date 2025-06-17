@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
         const result = spinReels();
         const win = calculateWin(result);
-        const net = win - wager;
+        const net = (win * wager) - wager;
 
         user.balance += net;
         await user.save();
@@ -40,13 +40,17 @@ export async function POST(req: NextRequest) {
             userId: user._id,
             spinResult: result,
             wager,
-            winAmount: win,
+            winAmount: (win * wager),
             createdAt: new Date()
         });
 
         await newTransaction.save();
 
-        return NextResponse.json({ result, win });
+        return NextResponse.json({
+            result,
+            win: win * wager,
+            updatedBalance: user.balance // 👈 Include updated balance
+        });
     } catch (error) {
         console.error('Spin error:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
