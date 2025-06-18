@@ -6,31 +6,22 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Zap } from "lucide-react"
-import { parseCookies } from "nookies"
 
 interface SlotMachineProps {
   balance: number
   onBalanceUpdate: (newBalance: number) => void
+  token: string
 }
 
 const SYMBOLS = ["🍒", "🍋", "⭐", "💎", "🔔", "🍀"]
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const SYMBOL_NAMES = {
-  "🍒": "Cherry",
-  "🍋": "Lemon",
-  "⭐": "Star",
-  "💎": "Diamond",
-  "🔔": "Bell",
-  "🍀": "Clover",
-}
 
-export function SlotMachine({ balance, onBalanceUpdate }: SlotMachineProps) {
+export function SlotMachine({ balance, onBalanceUpdate, token }: SlotMachineProps) {
   const [reels, setReels] = useState(["🍒", "🍋", "⭐"])
   const [wager, setWager] = useState(10)
   const [spinning, setSpinning] = useState(false)
-  // const [lastWin, setLastWin] = useState(0)
   const [message, setMessage] = useState("")
   const [error, setError] = useState("")
+
 
   const handleSpin = async () => {
     if (wager > balance) {
@@ -57,9 +48,6 @@ export function SlotMachine({ balance, onBalanceUpdate }: SlotMachineProps) {
     }, 100)
 
     try {
-      const cookies = parseCookies(); // works client-side in Next.js
-      const token = cookies.token; // assumes you stored it as 'token'
-      console.log("token ", token);
 
       const response = await fetch("/api/spin", {
         method: "POST",
@@ -148,7 +136,7 @@ export function SlotMachine({ balance, onBalanceUpdate }: SlotMachineProps) {
                 type="number"
                 value={wager}
                 onChange={(e) => setWager(Math.max(1, Number.parseInt(e.target.value) || 1))}
-                className="bg-slate-700/50 border-slate-600 text-white"
+                className="bg-slate-700/50 border-slate-600 text-white ml-4"
                 min="1"
                 max={balance}
               />
@@ -191,7 +179,7 @@ export function SlotMachine({ balance, onBalanceUpdate }: SlotMachineProps) {
             <Button
               onClick={handleSpin}
               disabled={spinning || wager > balance}
-              className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold text-lg py-6"
+              className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold text-lg py-6 hover:cursor-pointer"
             >
               {spinning ? (
                 <>
@@ -200,7 +188,7 @@ export function SlotMachine({ balance, onBalanceUpdate }: SlotMachineProps) {
                 </>
               ) : (
                 <>
-                  <Zap className="mr-2 h-5 w-5" />
+                  <Zap className="mr-2 h-5 w-5 " />
                   SPIN ({wager} coins)
                 </>
               )}

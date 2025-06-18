@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Coins, Sparkles } from "lucide-react"
+import { setCookie } from "nookies"
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("")
@@ -41,12 +42,15 @@ export default function RegisterPage() {
       const data = await response.json()
 
       if (response.ok) {
-        document.cookie = `auth-token=${data.token}; path=/; max-age=86400`
+        setCookie(null, 'token', data.token, {
+          maxAge: 60 * 60 * 24 * 7, // 7 day
+          path: '/',
+        });
         router.push("/dashboard")
       } else {
         setError(data.message || "Registration failed")
       }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setError("Network error occurred")
     } finally {

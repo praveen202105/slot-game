@@ -12,6 +12,7 @@ interface LeaderboardEntry {
   totalSpins: number
 }
 
+
 export function Leaderboard() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [loading, setLoading] = useState(true)
