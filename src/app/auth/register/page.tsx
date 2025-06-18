@@ -8,17 +8,24 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Coins, Sparkles } from "lucide-react"
 import { setCookie } from "nookies"
-
+import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode"
+interface DecodedToken {
+  name: string;
+  email: string;
+  picture: string;
+}
 export default function RegisterPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [googleLoading, setGoogleLoading] = useState(false);
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,6 +64,56 @@ export default function RegisterPage() {
       setLoading(false)
     }
   }
+  const handleGoogleLogin = async (response: CredentialResponse) => {
+    setGoogleLoading(true);
+    // setError(null);
+
+    try {
+      if (response.credential) {
+        const credential = response.credential;
+
+        const decoded: DecodedToken = jwtDecode<DecodedToken>(credential);
+
+        const userProfile = {
+          name: decoded.name,
+          email: decoded.email,
+          picture: decoded.picture,
+        };
+
+        const res = await fetch("/api/auth/google", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(userProfile),
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error("Server Error Response:", errorText);
+          throw new Error(`Server responded with status ${res.status}`);
+        }
+
+
+        const data = await res.json();
+        const { token } = data;
+
+        setCookie(null, 'token', token, {
+          maxAge: 60 * 60 * 24 * 7, // 7 day
+          path: '/',
+        });
+        router.push("/dashboard");
+      } else {
+        console.error("Google Login Failed: No credential found");
+        setError("Google Sign-In Failed");
+      }
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      setError("Failed to sign in with Google");
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
@@ -154,6 +211,35 @@ export default function RegisterPage() {
             </p>
           </div>
         </CardContent>
+        <CardFooter className="flex flex-col border-t pt-6 bg-gray-50/50 dark:bg-gray-900/20">
+          <div className="relative w-full mb-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-gray-50/50 dark:bg-gray-900/20 px-2 text-muted-foreground">
+                Or continue with
+              </span>
+            </div>
+          </div>
+
+          {googleLoading ? (
+            <Button disabled variant="outline" className="w-full">
+              Signing in with Google...
+            </Button>
+          ) : (
+            <GoogleLogin
+              onSuccess={handleGoogleLogin}
+              onError={() => setError("Google Sign-In Failed")}
+              size="large"
+              width="50"
+              shape="circle"
+              logo_alignment="left"
+            />
+          )}
+
+          {error && <p className="mt-4 text-sm text-red-500 text-center">{error}</p>}
+        </CardFooter>
       </Card>
     </div>
   )
