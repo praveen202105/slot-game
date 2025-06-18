@@ -19,40 +19,9 @@ export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const cookies = parseCookies(); // works client-side in Next.js
+  const token = cookies.token; // assumes you stored it as 'token'
 
-  useEffect(() => {
-    fetchUserData()
-  }, [])
-
-  const fetchUserData = async () => {
-    try {
-      const cookies = parseCookies(); // works client-side in Next.js
-      const token = cookies.token; // assumes you stored it as 'token'
-      console.log("token ", token);
-
-      // if (!token) {
-      //   router.push("/auth/login");
-      //   return;
-      // }
-
-      const response = await fetch("/api/profile", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.ok) {
-        const userData = await response.json()
-        setUser(userData)
-      } else {
-        router.push("/auth/login")
-      }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      // router.push("/auth/login")
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleLogout = () => {
     document.cookie = "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT"
@@ -62,6 +31,37 @@ export default function DashboardPage() {
   const updateBalance = (newBalance: number) => {
     setUser((prev) => (prev ? { ...prev, balance: newBalance } : null))
   }
+  useEffect(() => {
+
+
+    const fetchUserData = async () => {
+      try {
+
+        if (!token) {
+          router.push("/auth/login");
+          return;
+        }
+
+        const response = await fetch("/api/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          const userData = await response.json()
+          setUser(userData)
+        } else {
+          router.push("/auth/login")
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (error) {
+        router.push("/auth/login")
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchUserData()
+  }, [router, token])
 
   if (loading) {
     return (
@@ -102,11 +102,12 @@ export default function DashboardPage() {
             <Button
               onClick={handleLogout}
               variant="outline"
-              className="border-red-500/20 text-red-400 hover:bg-red-500/10"
+              className="border-red-500/20 text-red-400 hover:bg-red-500/10 cursor-pointer"
             >
               <LogOut className="h-4 w-4 mr-2" />
               Logout
             </Button>
+
           </div>
         </div>
       </header>
@@ -117,21 +118,21 @@ export default function DashboardPage() {
           <TabsList className="grid w-full grid-cols-3 bg-slate-800/50 border-amber-500/20">
             <TabsTrigger
               value="game"
-              className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-400"
+              className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-400 hover:cursor-pointer"
             >
               <Gamepad2 className="h-4 w-4 mr-2" />
               Game
             </TabsTrigger>
             <TabsTrigger
               value="history"
-              className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-400"
+              className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-400 hover:cursor-pointer"
             >
               <History className="h-4 w-4 mr-2" />
               History
             </TabsTrigger>
             <TabsTrigger
               value="leaderboard"
-              className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-400"
+              className="data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-400 hover:cursor-pointer"
             >
               <Trophy className="h-4 w-4 mr-2" />
               Leaderboard
@@ -139,11 +140,11 @@ export default function DashboardPage() {
           </TabsList>
 
           <TabsContent value="game">
-            <SlotMachine balance={user.balance} onBalanceUpdate={updateBalance} />
+            <SlotMachine balance={user.balance} onBalanceUpdate={updateBalance} token={token} />
           </TabsContent>
 
           <TabsContent value="history">
-            <TransactionHistory />
+            <TransactionHistory token={token} />
           </TabsContent>
 
           <TabsContent value="leaderboard">

@@ -34,9 +34,9 @@ export default function LoginPage() {
       const data = await response.json()
 
       if (response.ok) {
-        // document.cookie = `auth-token=${data.token}; path=/; max-age=86400`
+
         setCookie(null, 'token', data.token, {
-          maxAge: 60 * 60 * 24, // 1 day
+          maxAge: 60 * 60 * 24 * 7, // 7 day
           path: '/',
         });
         router.push("/dashboard")

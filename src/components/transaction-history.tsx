@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown } from "lucide-react"
-import { parseCookies } from "nookies"
 
 interface Transaction {
   _id: string
@@ -17,38 +16,43 @@ interface Transaction {
 }
 
 
-export function TransactionHistory() {
+interface TransactionHistoryProps {
+  token: string;
+}
+
+export function TransactionHistory({ token }: TransactionHistoryProps) {
+
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
 
   useEffect(() => {
-    fetchTransactions()
-  }, [page])
+    const fetchTransactions = async () => {
+      setLoading(true)
+      try {
 
-  const fetchTransactions = async () => {
-    setLoading(true)
-    try {
-      const cookies = parseCookies(); // works client-side in Next.js
-      const token = cookies.token; // assumes you stored it as 'token'
-      const response = await fetch("/api/transactions", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setTransactions(data.transactions)
-        setTotalPages(data.totalPages)
+        const response = await fetch(`/api/transactions?page=${page}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        if (response.ok) {
+          const data = await response.json()
+          setTransactions(data.transactions)
+          setTotalPages(data.totalPages)
+        }
+      } catch (error) {
+        console.error("Failed to fetch transactions:", error)
+      } finally {
+        setLoading(false)
       }
-    } catch (error) {
-      console.error("Failed to fetch transactions:", error)
-    } finally {
-      setLoading(false)
     }
-  }
+
+    fetchTransactions()
+  }, [page, token])
+
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString()
@@ -134,7 +138,7 @@ export function TransactionHistory() {
                   disabled={page === 1}
                   variant="outline"
                   size="sm"
-                  className="border-amber-500/20 text-amber-400 hover:bg-amber-500/10"
+                  className="border-amber-500/20 text-amber-400 hover:bg-amber-500/10 cursor-pointer"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
@@ -148,7 +152,7 @@ export function TransactionHistory() {
                   disabled={page === totalPages}
                   variant="outline"
                   size="sm"
-                  className="border-amber-500/20 text-amber-400 hover:bg-amber-500/10"
+                  className="border-amber-500/20 text-amber-400 hover:bg-amber-500/10 cursor-pointer"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
