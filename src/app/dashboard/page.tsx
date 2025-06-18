@@ -9,7 +9,8 @@ import { SlotMachine } from "@/components/slot-machine"
 import { TransactionHistory } from "@/components/transaction-history"
 import { Leaderboard } from "@/components/leaderboard"
 import { Coins, LogOut, Trophy, History, Gamepad2 } from "lucide-react"
-import { parseCookies } from 'nookies';
+import { destroyCookie, parseCookies } from 'nookies'
+
 interface User {
   email: string
   balance: number
@@ -18,48 +19,61 @@ interface User {
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const router = useRouter()
-  const cookies = parseCookies(); // works client-side in Next.js
-  const token = cookies.token; // assumes you stored it as 'token'
+  const [coinsAdded, setCoinsAdded] = useState<number | null>(null)
+  const [animateCoins, setAnimateCoins] = useState(false)
 
+  const router = useRouter()
+  const cookies = parseCookies()
+  const token = cookies.token
 
   const handleLogout = () => {
-    document.cookie = "auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT"
+    destroyCookie(null, "token", { path: "/" })
     router.push("/auth/login")
   }
 
   const updateBalance = (newBalance: number) => {
-    setUser((prev) => (prev ? { ...prev, balance: newBalance } : null))
+    setUser((prev) => {
+      if (!prev) return null
+      const diff = newBalance - prev.balance
+      if (diff > 0) {
+        setCoinsAdded(diff)
+        setAnimateCoins(true)
+        setTimeout(() => {
+          setAnimateCoins(false)
+          setCoinsAdded(null)
+        }, 1500)
+      }
+      return { ...prev, balance: newBalance }
+    })
   }
+
   useEffect(() => {
-
-
     const fetchUserData = async () => {
       try {
-
         if (!token) {
-          router.push("/auth/login");
-          return;
+          router.push("/auth/login")
+          return
         }
 
         const response = await fetch("/api/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
+        })
+
         if (response.ok) {
           const userData = await response.json()
           setUser(userData)
         } else {
           router.push("/auth/login")
         }
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
+      } catch {
         router.push("/auth/login")
       } finally {
         setLoading(false)
       }
     }
+
     fetchUserData()
   }, [router, token])
 
@@ -71,9 +85,7 @@ export default function DashboardPage() {
     )
   }
 
-  if (!user) {
-    return null
-  }
+  if (!user) return null
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -90,12 +102,23 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center space-x-4">
-            <Card className="bg-slate-700/50 border-amber-500/20">
+            <Card className="relative bg-slate-700/50 border-amber-500/20 overflow-visible">
               <CardContent className="px-4 py-2">
                 <div className="flex items-center space-x-2">
-                  <Coins className="h-5 w-5 text-amber-400" />
-                  <span className="text-amber-400 font-bold text-lg">{user.balance.toLocaleString()}</span>
+                  <Coins
+                    className={`h-5 w-5 text-amber-400 transition-transform duration-300 ${animateCoins ? "scale-125" : "scale-100"
+                      }`}
+                  />
+                  <span className="text-amber-400 font-bold text-lg">
+                    {user.balance.toLocaleString()}
+                  </span>
                 </div>
+
+                {animateCoins && coinsAdded !== null && (
+                  <div className="absolute -top-3 right-2 text-amber-300 font-bold text-sm animate-bounce">
+                    +{coinsAdded}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -107,7 +130,6 @@ export default function DashboardPage() {
               <LogOut className="h-4 w-4 mr-2" />
               Logout
             </Button>
-
           </div>
         </div>
       </header>

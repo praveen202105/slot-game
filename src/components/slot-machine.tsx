@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+
 import { Loader2, Zap } from "lucide-react"
+import useSound from "use-sound"
 
 interface SlotMachineProps {
   balance: number
@@ -22,6 +24,8 @@ export function SlotMachine({ balance, onBalanceUpdate, token }: SlotMachineProp
   const [message, setMessage] = useState("")
   const [error, setError] = useState("")
 
+  const [play, { stop }] = useSound('/sound/spin.mp3', { volume: 0.5 });
+
 
   const handleSpin = async () => {
     if (wager > balance) {
@@ -33,6 +37,11 @@ export function SlotMachine({ balance, onBalanceUpdate, token }: SlotMachineProp
       setError("Wager must be greater than 0!")
       return
     }
+    play();
+
+    setTimeout(() => {
+      stop();
+    }, 3000);
 
     setSpinning(true)
     setError("")
