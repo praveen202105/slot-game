@@ -6,7 +6,7 @@ export interface IUser extends Document {
     password: string;
     imageUrl?: string; // Optional field for storing image URLs
     balance: number;
-
+    bonusSpinCount: number; // ✅ New field for bonus tracking
 }
 
 const UserSchema: Schema = new Schema(
@@ -14,8 +14,9 @@ const UserSchema: Schema = new Schema(
         name: { type: String },
         email: { type: String, required: true, unique: true },
         password: { type: String, required: true },
-        imageUrl: { type: String, default: '' }, // Field to store image URL,
+        imageUrl: { type: String, default: '' },
         balance: { type: Number, default: 1000 },
+        bonusSpinCount: { type: Number, default: 0 }, // ✅ Added here
     },
     { timestamps: true }
 );

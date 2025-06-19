@@ -30,6 +30,8 @@ export async function POST(req: NextRequest) {
         const net = (win * wager) - wager;
 
         user.balance += net;
+        user.bonusSpinCount += 1;
+
         await user.save();
 
         const newTransaction = new Transaction({

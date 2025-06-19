@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -26,6 +26,32 @@ export function SlotMachine({ balance, onBalanceUpdate, token }: SlotMachineProp
 
   const [play, { stop }] = useSound('/sound/spin.mp3', { volume: 0.5 });
 
+  const tryClaimBonus = async () => {
+    try {
+      const res = await fetch("/api/spin/bonus", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        onBalanceUpdate(data.balance);
+        setMessage("🎁 Bonus 100 coins granted!");
+      } else {
+        console.warn("Not eligible for bonus:", data?.error || "Unknown reason");
+      }
+    } catch (err) {
+      console.error("Bonus spin error:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (balance == 0) tryClaimBonus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [balance])
 
   const handleSpin = async () => {
     if (wager > balance) {
@@ -67,7 +93,7 @@ export function SlotMachine({ balance, onBalanceUpdate, token }: SlotMachineProp
 
       const data = await response.json()
 
-      setTimeout(() => {
+      setTimeout(async () => {
         clearInterval(spinInterval)
 
         if (response.ok) {
@@ -79,6 +105,9 @@ export function SlotMachine({ balance, onBalanceUpdate, token }: SlotMachineProp
           } else {
             setMessage("Better luck next time!")
           }
+
+          await tryClaimBonus()
+
         } else {
           setError(data.message || "Spin failed")
         }
