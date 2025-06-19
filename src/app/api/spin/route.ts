@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
             wager,
             winAmount: (win * wager),
             createdAt: new Date()
+
         });
 
         await newTransaction.save();
@@ -47,7 +48,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
             result,
             win: win * wager,
-            updatedBalance: user.balance // 👈 Include updated balance
+            updatedBalance: user.balance,
+            bonusSpinCount: user.bonusSpinCount >= 5
+
+
         });
     } catch (error) {
         console.error('Spin error:', error);

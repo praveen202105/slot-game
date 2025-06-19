@@ -106,7 +106,7 @@ export function SlotMachine({ balance, onBalanceUpdate, token }: SlotMachineProp
             setMessage("Better luck next time!")
           }
 
-          await tryClaimBonus()
+          if (data.bonusSpinCount) await tryClaimBonus()
 
         } else {
           setError(data.message || "Spin failed")
