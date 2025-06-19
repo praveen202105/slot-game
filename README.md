@@ -61,7 +61,7 @@ Check out the live app: [https://slot-game-tau.vercel.app/](https://slot-game-ta
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/your-username/slot-game.git
+git clone https://github.com/praveen202105/slot-game.git
 cd slot-game
 ```
 
