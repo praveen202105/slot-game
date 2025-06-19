@@ -25,6 +25,8 @@ export function SlotMachine({ balance, onBalanceUpdate, token }: SlotMachineProp
   const [error, setError] = useState("")
 
   const [play, { stop }] = useSound('/sound/spin.mp3', { volume: 0.5 });
+  const [playWin, { stop: stopWin }] = useSound('/sound/winning.mp3', { volume: 0.5 });
+
 
   const tryClaimBonus = async () => {
     try {
@@ -65,10 +67,6 @@ export function SlotMachine({ balance, onBalanceUpdate, token }: SlotMachineProp
     }
     play();
 
-    setTimeout(() => {
-      stop();
-    }, 3000);
-
     setSpinning(true)
     setError("")
     setMessage("")
@@ -97,11 +95,16 @@ export function SlotMachine({ balance, onBalanceUpdate, token }: SlotMachineProp
         clearInterval(spinInterval)
 
         if (response.ok) {
+          stop();
           setReels(data.result);
           onBalanceUpdate(data.updatedBalance)
 
           if (data.win > 0) {
+            playWin();
             setMessage(`🎉 You won ${data.win} coins! `)
+            setTimeout(() => {
+              stopWin();
+            }, 2000);
           } else {
             setMessage("Better luck next time!")
           }
