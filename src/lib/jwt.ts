@@ -7,8 +7,9 @@ export interface JwtPayload {
     role?: string;
 }
 
-export function createToken(payload: JwtPayload, expiresIn = '7d') {
-    return jwt.sign(payload, JWT_SECRET, { expiresIn });
+export function createToken(payload: JwtPayload, expiresIn: string | number = '7d') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return jwt.sign(payload, JWT_SECRET, { expiresIn: expiresIn as any });
 }
 
 export function verifyToken(token: string): JwtPayload {
