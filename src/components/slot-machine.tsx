@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -138,57 +138,52 @@ export function SlotMachine({ balance, onBalanceUpdate, token }: SlotMachineProp
           )}
 
           {/* Betting Controls */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-4">
-              <label className="text-slate-200 font-medium min-w-0">Wager:</label>
-              <Input
-                type="number"
-                value={wager}
-                onChange={(e) => setWager(Math.max(1, Number.parseInt(e.target.value) || 1))}
-                className="bg-slate-700/50 border-slate-600 text-white ml-4"
-                min="1"
-                max={balance}
-              />
-              <div className="flex space-x-2">
-                <Button
-                  onClick={() => quickBet(10)}
-                  variant="outline"
-                  size="sm"
-                  className="border-amber-500/20 text-amber-400 hover:bg-amber-500/10"
-                >
-                  10
-                </Button>
-                <Button
-                  onClick={() => quickBet(50)}
-                  variant="outline"
-                  size="sm"
-                  className="border-amber-500/20 text-amber-400 hover:bg-amber-500/10"
-                >
-                  50
-                </Button>
-                <Button
-                  onClick={() => quickBet(100)}
-                  variant="outline"
-                  size="sm"
-                  className="border-amber-500/20 text-amber-400 hover:bg-amber-500/10"
-                >
-                  100
-                </Button>
-                <Button
-                  onClick={() => quickBet(balance)}
-                  variant="outline"
-                  size="sm"
-                  className="border-red-500/20 text-red-400 hover:bg-red-500/10"
-                >
-                  MAX
-                </Button>
+          <div className="space-y-6">
+            {/* Wager Input + Quick Bets */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <label className="text-slate-200 font-medium sm:w-20">Wager:</label>
+
+              <div className="flex flex-col sm:flex-row gap-3 sm:items-center flex-1">
+                <Input
+                  type="number"
+                  value={wager}
+                  onChange={(e) =>
+                    setWager(Math.max(1, Number.parseInt(e.target.value) || 1))
+                  }
+                  className="bg-slate-700/50 border border-slate-600 text-white w-full sm:w-32 px-4"
+                  min="1"
+                  max={balance}
+                />
+
+                <div className="flex flex-wrap gap-2">
+                  {[10, 50, 100].map((amount) => (
+                    <Button
+                      key={amount}
+                      onClick={() => quickBet(amount)}
+                      variant="outline"
+                      size="sm"
+                      className="border-amber-500/20 text-amber-400 hover:bg-amber-500/10 px-4 cursor-pointer"
+                    >
+                      {amount}
+                    </Button>
+                  ))}
+                  <Button
+                    onClick={() => quickBet(balance)}
+                    variant="outline"
+                    size="sm"
+                    className="border-red-500/20 text-red-400 hover:bg-red-500/10 px-4 cursor-pointer"
+                  >
+                    MAX
+                  </Button>
+                </div>
               </div>
             </div>
 
+            {/* Spin Button */}
             <Button
               onClick={handleSpin}
               disabled={spinning || wager > balance}
-              className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold text-lg py-6 hover:cursor-pointer"
+              className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold text-lg py-5 transition-all cursor-pointer"
             >
               {spinning ? (
                 <>
@@ -197,7 +192,7 @@ export function SlotMachine({ balance, onBalanceUpdate, token }: SlotMachineProp
                 </>
               ) : (
                 <>
-                  <Zap className="mr-2 h-5 w-5 " />
+                  <Zap className="mr-2 h-5 w-5" />
                   SPIN ({wager} coins)
                 </>
               )}
@@ -205,29 +200,37 @@ export function SlotMachine({ balance, onBalanceUpdate, token }: SlotMachineProp
           </div>
 
           {/* Payout Table */}
-          <Card className="bg-slate-900/30 border-slate-700">
-            <CardHeader>
-              <CardTitle className="text-lg text-amber-400">Payout Table</CardTitle>
+          <Card className="bg-slate-900/30 border border-amber-500/20 shadow-md">
+            <CardHeader className="pb-2 border-b border-amber-500/10">
+              <CardTitle className="text-lg font-semibold text-amber-400 tracking-wide">
+                🎰 Payout Table
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <div className="grid grid-cols-2 gap-2 text-slate-300">
-                <div>3 💎 Diamond</div>
-                <div className="text-amber-400 font-bold">20x</div>
-                <div>3 ⭐ Star</div>
-                <div className="text-amber-400 font-bold">10x</div>
-                <div>3 🔔 Bell</div>
-                <div className="text-amber-400 font-bold">8x</div>
-                <div>3 🍀 Clover</div>
-                <div className="text-amber-400 font-bold">6x</div>
-                <div>3 🍒 Cherry</div>
-                <div className="text-amber-400 font-bold">5x</div>
-                <div>3 🍋 Lemon</div>
-                <div className="text-amber-400 font-bold">3x</div>
-                <div>2 💎 Diamond</div>
-                <div className="text-amber-400 font-bold">2x</div>
+            <CardContent className="pt-4">
+              <div className="grid grid-cols-2 sm:grid-cols-2 gap-y-3 gap-x-6 text-sm sm:text-base text-slate-200">
+                {/* Row Item */}
+                {[
+                  ["3 💎 Diamond", "20x"],
+                  ["3 ⭐ Star", "10x"],
+                  ["3 🔔 Bell", "8x"],
+                  ["3 🍀 Clover", "6x"],
+                  ["3 🍒 Cherry", "5x"],
+                  ["3 🍋 Lemon", "3x"],
+                  ["2 💎 Diamond", "2x"],
+                ].map(([symbol, multiplier], idx) => (
+                  <React.Fragment key={idx}>
+                    <div className="flex items-center font-medium">
+                      {symbol}
+                    </div>
+                    <div className="text-right text-amber-400 font-bold tracking-wide drop-shadow-sm">
+                      {multiplier}
+                    </div>
+                  </React.Fragment>
+                ))}
               </div>
             </CardContent>
           </Card>
+
         </CardContent>
       </Card>
     </div>

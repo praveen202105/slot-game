@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
+
 import connectToDb from '@/lib/db';
 import Transaction from '@/models/Transaction';
+import { verifyToken } from '@/lib/jwt';
 
 export async function GET(req: NextRequest) {
     try {
@@ -10,7 +11,8 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
+        const decoded = verifyToken(token);
+
         await connectToDb();
 
         const { searchParams } = new URL(req.url);

@@ -85,49 +85,46 @@ export function TransactionHistory({ token }: TransactionHistoryProps) {
               {transactions.map((transaction) => (
                 <div
                   key={transaction._id}
-                  className="flex items-center justify-between p-4 bg-slate-700/30 rounded-lg border border-slate-600/30"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-slate-700/30 rounded-lg border border-slate-600/30"
                 >
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-2">
+                  {/* Left */}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 w-full">
+                    <div className="flex items-center gap-2">
                       {transaction.winAmount > 0 ? (
                         <TrendingUp className="h-5 w-5 text-green-400" />
                       ) : (
                         <TrendingDown className="h-5 w-5 text-red-400" />
                       )}
-
-                      <div>
-                        <div className="font-medium text-white">Spin</div>
-                        <div className="text-sm text-slate-400">{formatDate(transaction.createdAt)}</div>
+                      <div className="text-white text-sm sm:text-base font-medium">
+                        Spin
+                        <div className="text-xs text-slate-400">{formatDate(transaction.createdAt)}</div>
                       </div>
                     </div>
 
                     {transaction.spinResult && (
-                      <div className="flex space-x-1">
+                      <div className="flex flex-wrap gap-1 text-2xl">
                         {transaction.spinResult.map((symbol, index) => (
-                          <span key={index} className="text-2xl">
-                            {symbol}
-                          </span>
+                          <span key={index}>{symbol}</span>
                         ))}
                       </div>
                     )}
                   </div>
 
-                  <div className="text-right">
-                    <div
-                      className={`font-bold ${transaction.winAmount > 0 ? "text-green-400" : "text-red-400"
-                        }`}
-                    >
+                  {/* Right */}
+                  <div className="flex flex-col items-end sm:items-center">
+                    <div className={`font-bold text-sm sm:text-base ${transaction.winAmount > 0 ? "text-green-400" : "text-red-400"}`}>
                       {transaction.winAmount > 0
                         ? `+${transaction.winAmount}`
                         : `-${transaction.wager}`}
                     </div>
                     {transaction.winAmount > 0 && (
-                      <Badge className="bg-green-500/20 text-green-400 border-green-500/20">WIN</Badge>
+                      <Badge className="mt-1 bg-green-500/20 text-green-400 border-green-500/20 text-xs">
+                        WIN
+                      </Badge>
                     )}
                   </div>
                 </div>
               ))}
-
             </div>
 
             {/* Pagination */}
@@ -143,7 +140,7 @@ export function TransactionHistory({ token }: TransactionHistoryProps) {
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
 
-                <span className="text-slate-400">
+                <span className="text-slate-400 text-sm">
                   Page {page} of {totalPages}
                 </span>
 
@@ -162,5 +159,6 @@ export function TransactionHistory({ token }: TransactionHistoryProps) {
         )}
       </CardContent>
     </Card>
+
   )
 }
