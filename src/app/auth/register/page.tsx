@@ -145,7 +145,7 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <Alert className="border-red-500/20 bg-red-500/10">
-                <AlertDescription className="text-red-400">{error}</AlertDescription>
+                <AlertDescription className="text-red-500">{error}</AlertDescription>
               </Alert>
             )}
 
@@ -245,8 +245,6 @@ export default function RegisterPage() {
               logo_alignment="left"
             />
           )}
-
-          {error && <p className="mt-4 text-sm text-red-500 text-center">{error}</p>}
         </CardFooter>
       </Card>
     </div>
