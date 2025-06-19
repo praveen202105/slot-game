@@ -4,6 +4,12 @@ A full-featured, real-time slot machine game built with **Next.js**, **MongoDB**
 
 ---
 
+## 🌐 Live Demo
+
+Check out the live app: [https://slot-game-tau.vercel.app/](https://slot-game-tau.vercel.app/)
+
+---
+
 ## 🚀 Features
 
 ### 🔐 User Authentication
@@ -11,6 +17,7 @@ A full-featured, real-time slot machine game built with **Next.js**, **MongoDB**
 * `POST /auth/register`: Register a new user (with hashed password)
 * `POST /auth/login`: Login and receive a JWT token
 * All protected routes are secured via JWT middleware
+* ✅ Implemented Google OAuth (GAuth) for quick login
 
 ### 🎰 Slot Spin Logic
 
@@ -27,7 +34,7 @@ A full-featured, real-time slot machine game built with **Next.js**, **MongoDB**
 ### 🏆 Leaderboard (Cached with Redis)
 
 * `GET /api/leaderboard?days=7`: Top 10 users by net win over last `N` days
-* Uses MongoDB aggregation pipeline
+* Uses MongoDB aggregation 
 * Response is cached in Redis for 2 minutes (via Upstash)
 
 ### 🎁 Bonus Spins
@@ -36,11 +43,6 @@ A full-featured, real-time slot machine game built with **Next.js**, **MongoDB**
 * `POST /api/spin/bonus`: Administer bonus coins to eligible users
 
 
-### 🏁 Tournament Mode
-
-* Track and rank users within a defined time window
-* `POST /api/admin/reset-leaderboard`: Admin-only endpoint to reset tournament/leaderboard
-
 ---
 
 ## 🧠 Tech Stack
@@ -48,7 +50,7 @@ A full-featured, real-time slot machine game built with **Next.js**, **MongoDB**
 * **Frontend**: React, Tailwind CSS, ShadCN
 * **Backend**: Next.js (API routes)
 * **Database**: MongoDB with Mongoose
-* **Auth**: JWT (with bcrypt hashing)
+* **Auth**: JWT (with bcrypt hashing), Google OAuth
 * **Caching**: Upstash Redis
 * **Sound**: `use-sound` for spin and win audio effects
 
@@ -94,8 +96,6 @@ To learn more about Next.js, check out:
 ---
 
 ## ☁️ Deploy on Vercel
-Check out the live app: https://slot-game-tau.vercel.app/
-
 
 The easiest way to deploy your Next.js app is to use [Vercel](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
 
