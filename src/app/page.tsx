@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation"
-import { cookies } from "next/headers"
+import { parseCookies } from "nookies"
 
 export default async function HomePage() {
-  const cookieStore = await cookies()
-  const token = cookieStore.get("auth-token")
+  const cookies = parseCookies()
+  const token = cookies.token
 
   if (token) {
     redirect("/dashboard")
