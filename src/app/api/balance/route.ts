@@ -1,15 +1,14 @@
-// /app/api/balance/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
 import connectToDb from '@/lib/db';
 import User from '@/models/User';
+import { verifyToken } from '@/lib/jwt';
 
 export async function GET(req: NextRequest) {
     try {
         const token = req.headers.get('authorization')?.split(' ')[1];
         if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        const decoded = verifyToken(token);
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
         await connectToDb();
 
         const user = await User.findById(decoded.id);

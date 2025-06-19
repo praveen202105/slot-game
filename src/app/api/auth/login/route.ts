@@ -1,8 +1,9 @@
-import jwt from 'jsonwebtoken';
+
 import bcrypt from 'bcryptjs';
 import User from '@/models/User';
 import connectToDatabase from '@/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
+import { createToken } from '@/lib/jwt';
 
 export async function POST(req: NextRequest) {
     await connectToDatabase();
@@ -11,6 +12,8 @@ export async function POST(req: NextRequest) {
     if (!user || !(await bcrypt.compare(password, user.password))) {
         return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, { expiresIn: '7d' });
+    const token = createToken({ id: user._id });
+
+
     return NextResponse.json({ token });
 }

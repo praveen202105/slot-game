@@ -1,16 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
 import connectToDb from '@/lib/db';
 import User from '@/models/User';
 import Transaction from '@/models/Transaction';
 import { spinReels, calculateWin } from '@/lib/spinLogic';
+import { verifyToken } from '@/lib/jwt';
 
-interface DecodedToken {
-    id: string;
-    username: string;
-    iat: number;
-    exp: number;
-}
+
 
 export async function POST(req: NextRequest) {
     try {
@@ -19,7 +14,8 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
+        const decoded = verifyToken(token);
+
         const { wager } = await req.json();
 
         await connectToDb();

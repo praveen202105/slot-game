@@ -1,7 +1,7 @@
-import jwt from 'jsonwebtoken';
 import User from '@/models/User';
 import connectToDatabase from '@/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
+import { createToken } from '@/lib/jwt';
 
 export async function POST(req: NextRequest) {
     await connectToDatabase();
@@ -25,8 +25,9 @@ export async function POST(req: NextRequest) {
             });
         }
 
+        const token = createToken({ id: user._id });
 
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, { expiresIn: '7d' });
+
         return NextResponse.json({
             user: {
                 name,

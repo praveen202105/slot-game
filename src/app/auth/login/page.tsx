@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Coins, Sparkles } from "lucide-react"
-import { setCookie } from 'nookies';
+import { parseCookies, setCookie } from 'nookies';
 import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 interface DecodedToken {
@@ -25,8 +25,19 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [googleLoading, setGoogleLoading] = useState(false);
+  const cookies = parseCookies()
+  const token = cookies.token
 
   const router = useRouter()
+  console.log("token ", token);
+
+  useEffect(() => {
+    if (token) {
+      router.push("/dashboard");
+    }
+  }, [token, router]);
+
+
   const handleGoogleLogin = async (response: CredentialResponse) => {
     setGoogleLoading(true);
     // setError(null);
@@ -167,7 +178,7 @@ export default function LoginPage() {
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-semibold"
+              className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 cursor-pointer text-black font-semibold"
               disabled={loading}
             >
               {loading ? (
